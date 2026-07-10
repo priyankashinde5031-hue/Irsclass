@@ -52,8 +52,8 @@ export default function GeneratePage() {
             <h1 className="page-title">QR ready</h1>
             <p className="page-sub mt-1">“{done.title}” · valid {today} → {validUntil}</p>
           </div>
-          <img src={done.png} alt="QR code" className="mx-auto w-60 h-60 rounded-2xl border border-slate-200 bg-white p-3 shadow-card" />
-          <p className="text-xs text-slate-400 break-all">{viewerUrl(done.slug)}</p>
+          <img src={done.png} alt="QR code" className="mx-auto w-60 h-60 rounded-2xl border border-stone-200 bg-white p-3 shadow-card" />
+          <p className="text-xs text-stone-400 break-all">{viewerUrl(done.slug)}</p>
           <div className="flex gap-3 justify-center">
             <a href={done.png} download={`qr-${done.slug}.png`} className="btn-primary">Download QR</a>
             <button onClick={reset} className="btn-ghost">Generate more</button>
@@ -72,13 +72,13 @@ export default function GeneratePage() {
 
       <div className="card p-6 space-y-5">
         <div>
-          <label className="label">Document <span className="text-slate-400 font-normal">(image or PDF, max 5 MB)</span></label>
+          <label className="label">Document <span className="text-stone-400 font-normal">(image or PDF, max 5 MB)</span></label>
           <input type="file" accept="image/*,application/pdf"
             onChange={(e) => pickFile(e.target.files?.[0] || null)}
-            className="block w-full text-sm text-slate-600 rounded-xl border border-slate-200 bg-white
+            className="block w-full text-sm text-stone-600 rounded-xl border border-stone-200 bg-white
               file:mr-4 file:border-0 file:bg-brand-gradient file:text-white file:px-4 file:py-2.5 file:text-sm file:font-medium
               file:cursor-pointer cursor-pointer" />
-          {file && <p className="mt-1.5 text-xs text-slate-500">{file.name} · {(file.size / 1024 / 1024).toFixed(2)} MB</p>}
+          {file && <p className="mt-1.5 text-xs text-stone-500">{file.name} · {(file.size / 1024 / 1024).toFixed(2)} MB</p>}
         </div>
 
         <div>
@@ -87,7 +87,7 @@ export default function GeneratePage() {
         </div>
 
         <div>
-          <label className="label">Description <span className="text-slate-400 font-normal">(optional)</span></label>
+          <label className="label">Description <span className="text-stone-400 font-normal">(optional)</span></label>
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="input" rows={2}
             placeholder="What is this document about?" />
         </div>
@@ -95,7 +95,7 @@ export default function GeneratePage() {
         <div>
           <label className="label">Valid until</label>
           <input type="date" min={today} value={validUntil} onChange={(e) => setValidUntil(e.target.value)} className="input" />
-          <p className="mt-1.5 text-xs text-slate-400">Active from today ({today}) until the date above.</p>
+          <p className="mt-1.5 text-xs text-stone-400">Active from today ({today}) until the date above.</p>
         </div>
 
         {err && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{err}</p>}

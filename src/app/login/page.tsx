@@ -36,7 +36,7 @@ export default function LoginPage() {
 
         <div className="bg-white/95 backdrop-blur rounded-2xl shadow-lift p-6 space-y-4">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">Welcome back</h2>
+            <h2 className="text-lg font-semibold text-stone-900">Welcome back</h2>
             <p className="page-sub">Sign in to continue</p>
           </div>
 
@@ -57,7 +57,7 @@ export default function LoginPage() {
           <button onClick={submit} disabled={loading} className="btn-primary w-full">
             {loading ? "Signing in…" : "Sign in"}
           </button>
-          <p className="text-xs text-center text-slate-400">Accounts are created by an administrator.</p>
+          <p className="text-xs text-center text-stone-400">Accounts are created by an administrator.</p>
         </div>
       </div>
     </div>

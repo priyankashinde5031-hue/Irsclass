@@ -55,7 +55,7 @@ export default function UsersPage() {
       <div className="grid lg:grid-cols-5 gap-6 items-start">
         {/* Create form */}
         <div className="card p-6 lg:col-span-2 space-y-4">
-          <h2 className="font-semibold text-slate-900">Add a user</h2>
+          <h2 className="font-semibold text-stone-900">Add a user</h2>
           <div>
             <label className="label">Email</label>
             <input placeholder="name@irsclass.in" value={email} onChange={(e)=>setEmail(e.target.value)} className="input" />
@@ -65,7 +65,7 @@ export default function UsersPage() {
             <input placeholder="Full name" value={fullName} onChange={(e)=>setFullName(e.target.value)} className="input" />
           </div>
           <div>
-            <label className="label">Password <span className="text-slate-400 font-normal">(you choose)</span></label>
+            <label className="label">Password <span className="text-stone-400 font-normal">(you choose)</span></label>
             <input placeholder="Set a password" value={password} onChange={(e)=>setPassword(e.target.value)} className="input" />
           </div>
           <div>
@@ -76,14 +76,14 @@ export default function UsersPage() {
             </select>
           </div>
           <button onClick={create} disabled={busy} className="btn-primary w-full">{busy ? "Creating…" : "Create user"}</button>
-          {msg && <p className="text-sm text-slate-600 bg-slate-50 rounded-lg px-3 py-2">{msg}</p>}
+          {msg && <p className="text-sm text-stone-600 bg-stone-50 rounded-lg px-3 py-2">{msg}</p>}
         </div>
 
         {/* Users table */}
         <div className="card overflow-hidden lg:col-span-3">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+              <thead className="bg-stone-50 text-left text-xs uppercase tracking-wide text-stone-500">
                 <tr>
                   <th className="px-5 py-3 font-semibold">User</th>
                   <th className="px-5 py-3 font-semibold">Role</th>
@@ -91,26 +91,26 @@ export default function UsersPage() {
                   <th className="px-5 py-3 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {users.length === 0 && <tr><td className="px-5 py-8 text-slate-400" colSpan={4}>No users yet.</td></tr>}
+              <tbody className="divide-y divide-stone-100">
+                {users.length === 0 && <tr><td className="px-5 py-8 text-stone-400" colSpan={4}>No users yet.</td></tr>}
                 {users.map((u) => (
-                  <tr key={u.id} className="hover:bg-slate-50/60 transition-colors">
+                  <tr key={u.id} className="hover:bg-stone-50/60 transition-colors">
                     <td className="px-5 py-3.5">
-                      <p className="font-medium text-slate-900">{u.full_name || "—"}</p>
-                      <p className="text-xs text-slate-500">{u.email}</p>
+                      <p className="font-medium text-stone-900">{u.full_name || "—"}</p>
+                      <p className="text-xs text-stone-500">{u.email}</p>
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className={`badge uppercase ${u.role === "admin" ? "bg-brand-50 text-brand ring-1 ring-brand-100" : "bg-slate-100 text-slate-600"}`}>{u.role}</span>
+                      <span className={`badge uppercase ${u.role === "admin" ? "bg-brand-50 text-brand ring-1 ring-brand-100" : "bg-stone-100 text-stone-600"}`}>{u.role}</span>
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className={`badge ${u.is_active ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200" : "bg-slate-100 text-slate-500 ring-1 ring-slate-200"}`}>
+                      <span className={`badge ${u.is_active ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200" : "bg-stone-100 text-stone-500 ring-1 ring-stone-200"}`}>
                         {u.is_active ? "Active" : "Disabled"}
                       </span>
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="flex gap-3 justify-end">
                         <button onClick={() => resetPw(u.id)} className="font-medium text-brand hover:text-brand-dark">Reset password</button>
-                        <button onClick={() => toggleActive(u)} className="font-medium text-slate-500 hover:text-slate-800">{u.is_active ? "Disable" : "Enable"}</button>
+                        <button onClick={() => toggleActive(u)} className="font-medium text-stone-500 hover:text-stone-800">{u.is_active ? "Disable" : "Enable"}</button>
                       </div>
                     </td>
                   </tr>

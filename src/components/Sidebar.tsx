@@ -57,16 +57,16 @@ export default function Sidebar({ role, email }: { role: "admin" | "manager"; em
     <>
       {/* Hamburger (mobile) */}
       <button onClick={() => setOpen(true)}
-        className="md:hidden fixed top-3 left-3 z-30 p-2.5 rounded-xl bg-white shadow-card border border-slate-200" aria-label="Menu">
-        <span className="block w-5 h-0.5 bg-slate-800 mb-1.5" />
-        <span className="block w-5 h-0.5 bg-slate-800 mb-1.5" />
-        <span className="block w-5 h-0.5 bg-slate-800" />
+        className="md:hidden fixed top-3 left-3 z-30 p-2.5 rounded-xl bg-white shadow-card border border-stone-200" aria-label="Menu">
+        <span className="block w-5 h-0.5 bg-stone-800 mb-1.5" />
+        <span className="block w-5 h-0.5 bg-stone-800 mb-1.5" />
+        <span className="block w-5 h-0.5 bg-stone-800" />
       </button>
 
-      {open && <div className="md:hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-30" onClick={() => setOpen(false)} />}
+      {open && <div className="md:hidden fixed inset-0 bg-stone-900/50 backdrop-blur-sm z-30" onClick={() => setOpen(false)} />}
 
       <aside className={`fixed md:sticky md:top-0 z-40 top-0 left-0 h-screen w-72 flex flex-col
-        bg-ink text-slate-300 transform transition-transform duration-300
+        bg-ink text-stone-300 transform transition-transform duration-300
         ${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
         {/* subtle top glow */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-brand-gradient opacity-20 blur-2xl" />
@@ -77,7 +77,7 @@ export default function Sidebar({ role, email }: { role: "admin" | "manager"; em
             <div className="grid place-items-center w-10 h-10 rounded-xl bg-brand-gradient shadow-glow text-white font-bold">IR</div>
             <div>
               <p className="text-white font-bold tracking-tight leading-none">IRSCLASS</p>
-              <p className="text-[11px] text-slate-400 mt-1">QR Document Access</p>
+              <p className="text-[11px] text-stone-400 mt-1">QR Document Access</p>
             </div>
           </div>
         </div>
@@ -92,7 +92,7 @@ export default function Sidebar({ role, email }: { role: "admin" | "manager"; em
                 className={`group flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all
                   ${active
                     ? "bg-brand-gradient text-white shadow-glow"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"}`}>
+                    : "text-stone-400 hover:text-white hover:bg-white/5"}`}>
                 <IconEl className="w-5 h-5 shrink-0" />
                 {n.label}
               </Link>
@@ -110,7 +110,7 @@ export default function Sidebar({ role, email }: { role: "admin" | "manager"; em
             </div>
           </div>
           <button onClick={signOut}
-            className="mt-1 w-full flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm text-slate-400 hover:text-white hover:bg-white/5 transition">
+            className="mt-1 w-full flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm text-stone-400 hover:text-white hover:bg-white/5 transition">
             <Icon.logout className="w-5 h-5" /> Sign out
           </button>
         </div>

@@ -9,21 +9,21 @@ const config: Config = {
       },
       colors: {
         brand: {
-          DEFAULT: "#4f46e5",
-          dark: "#4338ca",
-          light: "#818cf8",
-          50: "#eef2ff",
-          100: "#e0e7ff",
+          DEFAULT: "#7c3aed",
+          dark: "#6d28d9",
+          light: "#c084fc",
+          50: "#faf5ff",
+          100: "#f3e8ff",
         },
-        ink: "#0b1020",
+        ink: "#1c1420",
       },
       boxShadow: {
-        card: "0 1px 2px 0 rgb(16 24 40 / 0.04), 0 1px 3px 0 rgb(16 24 40 / 0.08)",
-        lift: "0 10px 30px -12px rgb(16 24 40 / 0.25)",
-        glow: "0 8px 24px -6px rgb(79 70 229 / 0.5)",
+        card: "0 1px 2px 0 rgb(40 24 30 / 0.04), 0 1px 3px 0 rgb(40 24 30 / 0.08)",
+        lift: "0 10px 30px -12px rgb(60 30 40 / 0.28)",
+        glow: "0 8px 24px -6px rgb(192 38 211 / 0.45)",
       },
       backgroundImage: {
-        "brand-gradient": "linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #d946ef 100%)",
+        "brand-gradient": "linear-gradient(135deg, #7c3aed 0%, #c026d3 52%, #fb7185 100%)",
       },
       keyframes: {
         "fade-up": {

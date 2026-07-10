@@ -33,8 +33,8 @@ export default async function AnalyticsPage() {
             <div className={`grid place-items-center w-10 h-10 rounded-xl bg-gradient-to-br ${c.accent} text-white shadow-card`}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><path d={c.icon} /></svg>
             </div>
-            <p className="mt-4 text-3xl font-bold tracking-tight text-slate-900 tabular-nums">{c.value}</p>
-            <p className="text-sm text-slate-500">{c.label}</p>
+            <p className="mt-4 text-3xl font-bold tracking-tight text-stone-900 tabular-nums">{c.value}</p>
+            <p className="text-sm text-stone-500">{c.label}</p>
           </div>
         ))}
       </div>
