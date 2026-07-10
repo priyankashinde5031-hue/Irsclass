@@ -49,7 +49,9 @@ if someone keeps the tab open, especially for PDFs). It's set via
 
 | Capability | Admin | Manager |
 |---|:--:|:--:|
-| Generate QR, download, list, filter, activate/deactivate | ✅ | ✅ |
+| Generate QR, download, list, filter | ✅ | ✅ |
+| Activate / deactivate a QR | ✅ | ❌ |
+| Delete a QR | ✅ | ❌ |
 | Analytics | ✅ | ✅ |
 | User Management (create users, set/reset passwords, roles) | ✅ | ❌ |
 
@@ -125,9 +127,14 @@ GET    /api/cron/expire        daily expiry stamp (Bearer CRON_SECRET)
 `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_APP_URL`, `SIGNED_URL_TTL`,
 `CRON_SECRET`.
 
-## 7. Open decisions to confirm
-- **File size cap** — suggest limiting uploads (e.g. 10 MB) in `/api/qr`.
-- **Editable file** — currently a QR's file is fixed at creation. If you want
-  to *replace* the document behind an existing QR later, add a "replace file"
-  action (keeps the same slug/QR). Say the word and it's in the plan.
-- **Manager delete rights** — both roles can delete today. Restrict to admin?
+## 7. Decisions (resolved)
+- **File size cap** — **5 MB**, enforced in `/api/qr` (server) and the Generate
+  form (client).
+- **Editable file** — **no replace-file action.** A QR's document is fixed at
+  creation. (Still in the backlog if it's ever needed.)
+- **Deactivate / delete rights** — **admin only.** Managers can generate,
+  download, list, filter, and view analytics, but cannot activate/deactivate or
+  delete a QR. Enforced server-side (`/api/qr/[id]`), in RLS (`qr_delete` →
+  `is_admin()`), and hidden in the list UI for managers.
+- **Per-file naming** — each upload takes a **Title** (required) and an optional
+  **Description** ("what the file is about").

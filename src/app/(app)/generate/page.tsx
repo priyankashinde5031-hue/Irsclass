@@ -7,20 +7,30 @@ type Done = { slug: string; png: string; title: string };
 export default function GeneratePage() {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [validUntil, setValidUntil] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [done, setDone] = useState<Done | null>(null);
 
   const today = new Date().toISOString().slice(0, 10);
+  const MAX_BYTES = 5 * 1024 * 1024; // 5 MB cap
+
+  function pickFile(f: File | null) {
+    setErr(null);
+    if (f && f.size > MAX_BYTES) { setErr("File exceeds the 5 MB limit."); setFile(null); return; }
+    setFile(f);
+  }
 
   async function generate() {
     setErr(null);
     if (!file || !title || !validUntil) { setErr("File, title and validity date are required."); return; }
+    if (file.size > MAX_BYTES) { setErr("File exceeds the 5 MB limit."); return; }
     setBusy(true);
     try {
       const fd = new FormData();
       fd.append("file", file); fd.append("title", title); fd.append("valid_until", validUntil);
+      if (description.trim()) fd.append("description", description.trim());
       const res = await fetch("/api/qr", { method: "POST", body: fd });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed");
@@ -29,7 +39,7 @@ export default function GeneratePage() {
     } catch (e: any) { setErr(e.message); } finally { setBusy(false); }
   }
 
-  function reset() { setFile(null); setTitle(""); setValidUntil(""); setDone(null); setErr(null); }
+  function reset() { setFile(null); setTitle(""); setDescription(""); setValidUntil(""); setDone(null); setErr(null); }
 
   if (done) {
     return (
@@ -54,12 +64,18 @@ export default function GeneratePage() {
 
       <label className="block text-sm font-medium">Document (image or PDF)</label>
       <input type="file" accept="image/*,application/pdf"
-        onChange={(e) => setFile(e.target.files?.[0] || null)}
+        onChange={(e) => pickFile(e.target.files?.[0] || null)}
         className="w-full border rounded-lg px-3 py-2 bg-white" />
+      <p className="text-xs text-gray-400">Max 5 MB.</p>
 
       <label className="block text-sm font-medium">Title / Name</label>
       <input value={title} onChange={(e) => setTitle(e.target.value)}
         className="w-full border rounded-lg px-3 py-2" placeholder="e.g. Batch-A Notice" />
+
+      <label className="block text-sm font-medium">Description <span className="text-gray-400 font-normal">(optional)</span></label>
+      <textarea value={description} onChange={(e) => setDescription(e.target.value)}
+        className="w-full border rounded-lg px-3 py-2" rows={2}
+        placeholder="What is this document about?" />
 
       <label className="block text-sm font-medium">Valid until</label>
       <input type="date" min={today} value={validUntil}

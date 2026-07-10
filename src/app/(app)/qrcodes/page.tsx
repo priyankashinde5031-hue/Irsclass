@@ -15,6 +15,7 @@ export default function QrCodesPage() {
   const [validOn, setValidOn] = useState("");     // filter: valid on this date
   const [createdOn, setCreatedOn] = useState(""); // filter: created on this date
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);  // gates deactivate/delete
 
   async function load() {
     setLoading(true);
@@ -24,7 +25,16 @@ export default function QrCodesPage() {
       .order("created_at", { ascending: false });
     setRows((data as Row[]) || []); setLoading(false);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    (async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+      setIsAdmin(data?.role === "admin");
+    })();
+  }, []);
 
   const filtered = useMemo(() => rows.filter((r) => {
     if (name && !r.title.toLowerCase().includes(name.toLowerCase())) return false;
@@ -40,10 +50,18 @@ export default function QrCodesPage() {
   }
 
   async function toggle(id: string, next: boolean) {
-    await fetch(`/api/qr/${id}`, {
+    const res = await fetch(`/api/qr/${id}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ is_active: next }),
     });
+    if (!res.ok) { const d = await res.json().catch(() => ({})); alert(d.error || "Update failed"); return; }
+    load();
+  }
+
+  async function remove(id: string, title: string) {
+    if (!confirm(`Delete "${title}"? This removes the QR and its file permanently.`)) return;
+    const res = await fetch(`/api/qr/${id}`, { method: "DELETE" });
+    if (!res.ok) { const d = await res.json().catch(() => ({})); alert(d.error || "Delete failed"); return; }
     load();
   }
 
@@ -90,9 +108,14 @@ export default function QrCodesPage() {
                 <td className="p-3"><span className={`px-2 py-0.5 rounded-full text-xs ${badge(r.status)}`}>{r.status}</span></td>
                 <td className="p-3 flex gap-2">
                   <button onClick={() => downloadQr(r.slug)} className="text-brand hover:underline">Download</button>
-                  <button onClick={() => toggle(r.id, !r.is_active)} className="text-gray-500 hover:underline">
-                    {r.is_active ? "Deactivate" : "Activate"}
-                  </button>
+                  {isAdmin && (
+                    <button onClick={() => toggle(r.id, !r.is_active)} className="text-gray-500 hover:underline">
+                      {r.is_active ? "Deactivate" : "Activate"}
+                    </button>
+                  )}
+                  {isAdmin && (
+                    <button onClick={() => remove(r.id, r.title)} className="text-red-600 hover:underline">Delete</button>
+                  )}
                 </td>
               </tr>
             ))}

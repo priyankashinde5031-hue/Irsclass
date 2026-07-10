@@ -22,6 +22,10 @@ export async function POST(req: NextRequest) {
   if (!isPdf && !isImg)
     return NextResponse.json({ error: "Only images and PDFs are allowed" }, { status: 400 });
 
+  const MAX_BYTES = 5 * 1024 * 1024; // 5 MB cap
+  if (file.size > MAX_BYTES)
+    return NextResponse.json({ error: "File exceeds the 5 MB limit" }, { status: 400 });
+
   const admin = createAdminClient();
   const slug = nanoid(12);
   const ext = file.name.split(".").pop() || (isPdf ? "pdf" : "bin");

@@ -199,7 +199,9 @@ drop policy if exists "profiles_admin_write" on public.profiles;
 create policy "profiles_admin_write" on public.profiles for all
   using (public.is_admin()) with check (public.is_admin());
 
--- qr_codes: BOTH roles (admin + manager) have full rights.
+-- qr_codes: both roles can read/create/edit; DELETE is admin-only.
+-- (Deactivation is also admin-only, but that's an UPDATE of is_active, not a
+--  distinct SQL privilege, so it is enforced in the /api/qr/[id] route.)
 drop policy if exists "qr_read"   on public.qr_codes;
 create policy "qr_read"   on public.qr_codes for select using (public.is_app_user());
 drop policy if exists "qr_insert" on public.qr_codes;
@@ -207,7 +209,7 @@ create policy "qr_insert" on public.qr_codes for insert with check (public.is_ap
 drop policy if exists "qr_update" on public.qr_codes;
 create policy "qr_update" on public.qr_codes for update using (public.is_app_user()) with check (public.is_app_user());
 drop policy if exists "qr_delete" on public.qr_codes;
-create policy "qr_delete" on public.qr_codes for delete using (public.is_app_user());
+create policy "qr_delete" on public.qr_codes for delete using (public.is_admin());
 
 -- scan_events: app users can read (analytics); inserts go through the
 -- service role in the public viewer route, so no anon policy is needed.

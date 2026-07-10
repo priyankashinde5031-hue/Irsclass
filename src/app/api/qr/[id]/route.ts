@@ -9,6 +9,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { id } = await params;
   const body = await req.json();
 
+  // Deactivating/activating a QR is an admin-only action.
+  if (typeof body.is_active === "boolean" && profile.role !== "admin")
+    return NextResponse.json({ error: "Only admins can activate/deactivate QRs" }, { status: 403 });
+
   const patch: Record<string, unknown> = {};
   if (typeof body.is_active === "boolean") patch.is_active = body.is_active;
   if (body.valid_until) patch.valid_until = body.valid_until;
@@ -25,6 +29,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const profile = await getProfile();
   if (!profile) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (profile.role !== "admin")
+    return NextResponse.json({ error: "Only admins can delete QRs" }, { status: 403 });
   const { id } = await params;
 
   const admin = createAdminClient();
