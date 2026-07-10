@@ -7,15 +7,14 @@ skeleton form; the plan is how to harden and finish it.
 
 ---
 
-## M0 — Foundation ✅ (scaffolded)
-- [ ] Create the Supabase project under `irsclass7@gmail.com`.
-- [ ] Run `supabase/schema.sql` in the SQL Editor.
-- [ ] Create bucket `qr-files` (the schema does this; verify it's **private**).
-- [ ] Push this scaffold to `github.com/priyankashinde5031-hue/Irsclass`.
-- [ ] `npm install`, copy `.env.example` → `.env.local`, fill keys.
-- [ ] Bootstrap first admin (schema §12): add auth user `irsclass7@gmail.com`,
-      then run the promote block.
-- **Done when:** `npm run dev` runs and you can sign in as admin.
+## M0 — Foundation ✅
+- [x] Create the Supabase project (account `irsclass7@gmail.com`).
+- [x] Run `supabase/schema.sql` in the SQL Editor.
+- [x] Create bucket `qr-files` — verified **private**.
+- [x] Push to `github.com/priyankashinde5031-hue/Irsclass` (branch `main`).
+- [x] `npm install`, `.env.local` filled with keys.
+- [x] Bootstrap first admin (`priyanka@irsclass.in`, role `admin`).
+- **Done when:** `npm run dev` runs and you can sign in as admin. ✅
 
 ## M1 — Auth + app shell ✅ (scaffolded)
 - [x] Login, middleware route-gating, hamburger sidebar, role-based nav.
