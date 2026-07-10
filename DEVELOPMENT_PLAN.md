@@ -19,22 +19,24 @@ skeleton form; the plan is how to harden and finish it.
 
 ## M1 — Auth + app shell ✅ (scaffolded)
 - [x] Login, middleware route-gating, hamburger sidebar, role-based nav.
-- [ ] Harden `/users` with a server-side admin guard (not just hidden nav).
+- [x] Harden `/users` with a server-side admin guard (route `layout.tsx`
+      redirects non-admins; API routes already 403 managers).
 - **Done when:** manager and admin see the correct menu; logout works.
 
 ## M2 — Generate QR ✅ (scaffolded)
 - [x] Upload → `/api/qr` → storage + row → QR render → download → "Generate more".
-- [ ] Add file-size + type validation, upload progress, nicer errors.
+- [x] File-size (5 MB) + type validation, nicer errors. (upload progress: later)
 - **Done when:** generating a QR, scanning it on a phone shows the document.
 
 ## M3 — Public viewer ✅ (scaffolded)
 - [x] `/q/[slug]`: validity checks, scan logging, signed URL, image/PDF render.
-- [ ] Polish expired/inactive screens; test large PDFs and iOS Safari.
+- [x] Polished expired/inactive/not-found/error screens (branded). (test
+      large PDFs + iOS Safari: during QA)
 - **Done when:** expired/deactivated QRs show the block screen; valid ones render.
 
 ## M4 — All QR Codes list ✅ (scaffolded)
 - [x] Table, filters (name, valid-on, created-on), per-row download + toggle.
-- [ ] Add pagination for large volumes, and a "delete" confirm.
+- [x] Pagination (15/page) + admin-only delete with confirm.
 - **Done when:** filters combine correctly and download works per row.
 
 ## M5 — Analytics ✅ (scaffolded)
@@ -44,7 +46,8 @@ skeleton form; the plan is how to harden and finish it.
 
 ## M6 — User Management ✅ (scaffolded, admin-only)
 - [x] Create user (admin-chosen password), reset password, enable/disable, role.
-- [ ] Confirmation dialogs; prevent an admin disabling their own account.
+- [x] Confirmation dialogs; admin can't disable/demote their own account
+      (enforced in `/api/users/[id]` and hidden in the UI).
 - **Done when:** admin creates a manager who can log in and use M2–M5.
 
 ## M7 — Expiry automation

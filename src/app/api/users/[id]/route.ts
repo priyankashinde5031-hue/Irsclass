@@ -8,6 +8,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "Admins only" }, { status: 403 });
   const { id } = await params;
   const { password, role, is_active } = await req.json();
+
+  // Guard against an admin locking themselves out.
+  if (id === profile.id) {
+    if (is_active === false)
+      return NextResponse.json({ error: "You can’t disable your own account." }, { status: 400 });
+    if (role === "manager")
+      return NextResponse.json({ error: "You can’t remove your own admin role." }, { status: 400 });
+  }
+
   const admin = createAdminClient();
 
   // Admin explicitly sets/regenerates the password of their choosing.

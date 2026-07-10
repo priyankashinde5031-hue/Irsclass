@@ -16,6 +16,8 @@ export default function QrCodesPage() {
   const [createdOn, setCreatedOn] = useState(""); // filter: created on this date
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);  // gates deactivate/delete
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 15;
 
   async function load() {
     setLoading(true);
@@ -42,6 +44,13 @@ export default function QrCodesPage() {
     if (createdOn && r.created_at.slice(0,10) !== createdOn) return false;
     return true;
   }), [rows, name, validOn, createdOn]);
+
+  // Reset to page 1 whenever the filter set changes.
+  useEffect(() => { setPage(1); }, [name, validOn, createdOn]);
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const current = Math.min(page, pageCount);
+  const paged = filtered.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
 
   async function downloadQr(slug: string) {
     const png = await qrPngDataUrl(slug);
@@ -110,7 +119,7 @@ export default function QrCodesPage() {
             <tbody className="divide-y divide-stone-100">
               {loading && <tr><td className="px-5 py-8 text-stone-400" colSpan={7}>Loading…</td></tr>}
               {!loading && filtered.length === 0 && <tr><td className="px-5 py-8 text-stone-400" colSpan={7}>No QR codes match your filters.</td></tr>}
-              {filtered.map((r) => (
+              {paged.map((r) => (
                 <tr key={r.id} className="hover:bg-stone-50/60 transition-colors">
                   <td className="px-5 py-3.5 font-medium text-stone-900">{r.title}</td>
                   <td className="px-5 py-3.5"><span className="badge bg-stone-100 text-stone-600 uppercase">{r.file_type}</span></td>
@@ -136,6 +145,21 @@ export default function QrCodesPage() {
             </tbody>
           </table>
         </div>
+
+        {pageCount > 1 && (
+          <div className="flex items-center justify-between px-5 py-3 border-t border-stone-100 text-sm">
+            <span className="text-stone-500">
+              Showing {(current - 1) * PAGE_SIZE + 1}–{Math.min(current * PAGE_SIZE, filtered.length)} of {filtered.length}
+            </span>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setPage(current - 1)} disabled={current <= 1}
+                className="btn-ghost px-3 py-1.5 disabled:opacity-40">Prev</button>
+              <span className="text-stone-500 tabular-nums">Page {current} / {pageCount}</span>
+              <button onClick={() => setPage(current + 1)} disabled={current >= pageCount}
+                className="btn-ghost px-3 py-1.5 disabled:opacity-40">Next</button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,10 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 type U = { id: string; email: string; full_name: string | null; role: string; is_active: boolean };
 
 export default function UsersPage() {
   const [users, setUsers] = useState<U[]>([]);
+  const [meId, setMeId] = useState<string | null>(null);
   const [email, setEmail] = useState(""); const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState(""); const [role, setRole] = useState("manager");
   const [msg, setMsg] = useState<string | null>(null);
@@ -14,7 +16,13 @@ export default function UsersPage() {
     const r = await fetch("/api/users"); const d = await r.json();
     if (r.ok) setUsers(d.users);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    (async () => {
+      const { data: { user } } = await createClient().auth.getUser();
+      setMeId(user?.id ?? null);
+    })();
+  }, []);
 
   async function create() {
     setMsg(null); setBusy(true);
@@ -38,10 +46,13 @@ export default function UsersPage() {
   }
 
   async function toggleActive(u: U) {
-    await fetch(`/api/users/${u.id}`, {
+    const action = u.is_active ? "Disable" : "Enable";
+    if (!confirm(`${action} ${u.email}?`)) return;
+    const r = await fetch(`/api/users/${u.id}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ is_active: !u.is_active }),
     });
+    if (!r.ok) { const d = await r.json().catch(() => ({})); setMsg(d.error || "Update failed."); return; }
     load();
   }
 
@@ -108,9 +119,11 @@ export default function UsersPage() {
                       </span>
                     </td>
                     <td className="px-5 py-3.5">
-                      <div className="flex gap-3 justify-end">
+                      <div className="flex gap-3 justify-end items-center">
                         <button onClick={() => resetPw(u.id)} className="font-medium text-brand hover:text-brand-dark">Reset password</button>
-                        <button onClick={() => toggleActive(u)} className="font-medium text-stone-500 hover:text-stone-800">{u.is_active ? "Disable" : "Enable"}</button>
+                        {u.id === meId
+                          ? <span className="badge bg-brand-50 text-brand ring-1 ring-brand-100">You</span>
+                          : <button onClick={() => toggleActive(u)} className="font-medium text-stone-500 hover:text-stone-800">{u.is_active ? "Disable" : "Enable"}</button>}
                       </div>
                     </td>
                   </tr>
