@@ -12,3 +12,13 @@ export async function qrPngDataUrl(slug: string): Promise<string> {
     width: 512, margin: 2, errorCorrectionLevel: "M",
   });
 }
+
+// Turns a user title into a safe download filename, e.g. "Batch-A Notice" -> "batch-a-notice.png".
+export function qrFileName(title: string, slug: string): string {
+  const base = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+  return `${base || `qr-${slug}`}.png`;
+}

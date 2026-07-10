@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { qrPngDataUrl } from "@/lib/qr";
+import { qrPngDataUrl, qrFileName } from "@/lib/qr";
 
 type Row = {
   id: string; slug: string; title: string; file_type: string;
@@ -52,10 +52,10 @@ export default function QrCodesPage() {
   const current = Math.min(page, pageCount);
   const paged = filtered.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
 
-  async function downloadQr(slug: string) {
+  async function downloadQr(slug: string, title: string) {
     const png = await qrPngDataUrl(slug);
     const a = document.createElement("a");
-    a.href = png; a.download = `qr-${slug}.png`; a.click();
+    a.href = png; a.download = qrFileName(title, slug); a.click();
   }
 
   async function toggle(id: string, next: boolean) {
@@ -129,7 +129,7 @@ export default function QrCodesPage() {
                   <td className="px-5 py-3.5"><span className={`badge ${badge(r.status)}`}>{r.status}</span></td>
                   <td className="px-5 py-3.5">
                     <div className="flex gap-3 justify-end">
-                      <button onClick={() => downloadQr(r.slug)} className="font-medium text-brand hover:text-brand-dark">Download</button>
+                      <button onClick={() => downloadQr(r.slug, r.title)} className="font-medium text-brand hover:text-brand-dark">Download</button>
                       {isAdmin && (
                         <button onClick={() => toggle(r.id, !r.is_active)} className="font-medium text-stone-500 hover:text-stone-800">
                           {r.is_active ? "Deactivate" : "Activate"}

@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { qrPngDataUrl, viewerUrl } from "@/lib/qr";
+import { qrPngDataUrl, viewerUrl, qrFileName } from "@/lib/qr";
 
 type Done = { slug: string; png: string; title: string };
 
@@ -55,7 +55,7 @@ export default function GeneratePage() {
           <img src={done.png} alt="QR code" className="mx-auto w-60 h-60 rounded-2xl border border-stone-200 bg-white p-3 shadow-card" />
           <p className="text-xs text-stone-400 break-all">{viewerUrl(done.slug)}</p>
           <div className="flex gap-3 justify-center">
-            <a href={done.png} download={`qr-${done.slug}.png`} className="btn-primary">Download QR</a>
+            <a href={done.png} download={qrFileName(done.title, done.slug)} className="btn-primary">Download QR</a>
             <button onClick={reset} className="btn-ghost">Generate more</button>
           </div>
         </div>
