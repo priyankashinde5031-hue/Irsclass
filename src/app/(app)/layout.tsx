@@ -8,7 +8,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex min-h-screen">
       <Sidebar role={profile.role} email={profile.email} />
-      <main className="flex-1 p-4 md:p-8 pt-16 md:pt-8">{children}</main>
+      <main className="flex-1 min-w-0 p-5 md:p-10 pt-20 md:pt-10">
+        <div className="mx-auto max-w-6xl animate-fade-up">{children}</div>
+      </main>
     </div>
   );
 }

@@ -8,6 +8,7 @@ export default function UsersPage() {
   const [email, setEmail] = useState(""); const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState(""); const [role, setRole] = useState("manager");
   const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   async function load() {
     const r = await fetch("/api/users"); const d = await r.json();
@@ -16,14 +17,14 @@ export default function UsersPage() {
   useEffect(() => { load(); }, []);
 
   async function create() {
-    setMsg(null);
+    setMsg(null); setBusy(true);
     const r = await fetch("/api/users", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, full_name: fullName, password, role }),
     });
-    const d = await r.json();
+    const d = await r.json(); setBusy(false);
     if (!r.ok) { setMsg(d.error); return; }
-    setEmail(""); setFullName(""); setPassword(""); setRole("manager"); load();
+    setEmail(""); setFullName(""); setPassword(""); setRole("manager"); setMsg("User created."); load();
   }
 
   async function resetPw(id: string) {
@@ -46,39 +47,78 @@ export default function UsersPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">User Management</h1>
-
-      <div className="bg-white border rounded-xl p-4 grid sm:grid-cols-2 gap-3 max-w-2xl">
-        <input placeholder="Email" value={email} onChange={(e)=>setEmail(e.target.value)} className="border rounded-lg px-3 py-2" />
-        <input placeholder="Full name" value={fullName} onChange={(e)=>setFullName(e.target.value)} className="border rounded-lg px-3 py-2" />
-        <input placeholder="Password (you choose)" value={password} onChange={(e)=>setPassword(e.target.value)} className="border rounded-lg px-3 py-2" />
-        <select value={role} onChange={(e)=>setRole(e.target.value)} className="border rounded-lg px-3 py-2">
-          <option value="manager">Manager</option>
-          <option value="admin">Admin</option>
-        </select>
-        <button onClick={create} className="bg-brand text-white rounded-lg py-2 sm:col-span-2">Create user</button>
-        {msg && <p className="text-sm text-gray-600 sm:col-span-2">{msg}</p>}
+      <div>
+        <h1 className="page-title">User Management</h1>
+        <p className="page-sub mt-1">Create managers and admins, reset passwords, enable or disable access.</p>
       </div>
 
-      <div className="overflow-x-auto bg-white rounded-xl border max-w-2xl">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-left text-gray-500">
-            <tr><th className="p-3">Email</th><th className="p-3">Role</th><th className="p-3">Status</th><th className="p-3">Actions</th></tr>
-          </thead>
-          <tbody>
-            {users.map((u) => (
-              <tr key={u.id} className="border-t">
-                <td className="p-3">{u.email}</td>
-                <td className="p-3 uppercase text-xs">{u.role}</td>
-                <td className="p-3">{u.is_active ? "Active" : "Disabled"}</td>
-                <td className="p-3 flex gap-3">
-                  <button onClick={() => resetPw(u.id)} className="text-brand hover:underline">Reset password</button>
-                  <button onClick={() => toggleActive(u)} className="text-gray-500 hover:underline">{u.is_active ? "Disable" : "Enable"}</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="grid lg:grid-cols-5 gap-6 items-start">
+        {/* Create form */}
+        <div className="card p-6 lg:col-span-2 space-y-4">
+          <h2 className="font-semibold text-slate-900">Add a user</h2>
+          <div>
+            <label className="label">Email</label>
+            <input placeholder="name@irsclass.in" value={email} onChange={(e)=>setEmail(e.target.value)} className="input" />
+          </div>
+          <div>
+            <label className="label">Full name</label>
+            <input placeholder="Full name" value={fullName} onChange={(e)=>setFullName(e.target.value)} className="input" />
+          </div>
+          <div>
+            <label className="label">Password <span className="text-slate-400 font-normal">(you choose)</span></label>
+            <input placeholder="Set a password" value={password} onChange={(e)=>setPassword(e.target.value)} className="input" />
+          </div>
+          <div>
+            <label className="label">Role</label>
+            <select value={role} onChange={(e)=>setRole(e.target.value)} className="input">
+              <option value="manager">Manager</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <button onClick={create} disabled={busy} className="btn-primary w-full">{busy ? "Creating…" : "Create user"}</button>
+          {msg && <p className="text-sm text-slate-600 bg-slate-50 rounded-lg px-3 py-2">{msg}</p>}
+        </div>
+
+        {/* Users table */}
+        <div className="card overflow-hidden lg:col-span-3">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th className="px-5 py-3 font-semibold">User</th>
+                  <th className="px-5 py-3 font-semibold">Role</th>
+                  <th className="px-5 py-3 font-semibold">Status</th>
+                  <th className="px-5 py-3 font-semibold text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {users.length === 0 && <tr><td className="px-5 py-8 text-slate-400" colSpan={4}>No users yet.</td></tr>}
+                {users.map((u) => (
+                  <tr key={u.id} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="px-5 py-3.5">
+                      <p className="font-medium text-slate-900">{u.full_name || "—"}</p>
+                      <p className="text-xs text-slate-500">{u.email}</p>
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <span className={`badge uppercase ${u.role === "admin" ? "bg-brand-50 text-brand ring-1 ring-brand-100" : "bg-slate-100 text-slate-600"}`}>{u.role}</span>
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <span className={`badge ${u.is_active ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200" : "bg-slate-100 text-slate-500 ring-1 ring-slate-200"}`}>
+                        {u.is_active ? "Active" : "Disabled"}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <div className="flex gap-3 justify-end">
+                        <button onClick={() => resetPw(u.id)} className="font-medium text-brand hover:text-brand-dark">Reset password</button>
+                        <button onClick={() => toggleActive(u)} className="font-medium text-slate-500 hover:text-slate-800">{u.is_active ? "Disable" : "Enable"}</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );

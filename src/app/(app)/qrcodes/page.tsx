@@ -66,61 +66,76 @@ export default function QrCodesPage() {
   }
 
   const badge = (s: string) => ({
-    active: "bg-green-100 text-green-700",
-    expired: "bg-amber-100 text-amber-700",
-    deactivated: "bg-gray-200 text-gray-600",
-  }[s] || "bg-gray-100");
+    active:      "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+    expired:     "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
+    deactivated: "bg-slate-100 text-slate-600 ring-1 ring-slate-200",
+  }[s] || "bg-slate-100 text-slate-600");
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">All QR Codes</h1>
-
-      <div className="grid sm:grid-cols-3 gap-3 bg-white p-3 rounded-xl border">
-        <input placeholder="Filter by name/title" value={name}
-          onChange={(e) => setName(e.target.value)} className="border rounded-lg px-3 py-2" />
-        <label className="text-xs text-gray-500 flex flex-col">Valid on
-          <input type="date" value={validOn} onChange={(e) => setValidOn(e.target.value)}
-            className="border rounded-lg px-3 py-2 text-gray-900" /></label>
-        <label className="text-xs text-gray-500 flex flex-col">Created on
-          <input type="date" value={createdOn} onChange={(e) => setCreatedOn(e.target.value)}
-            className="border rounded-lg px-3 py-2 text-gray-900" /></label>
+    <div className="space-y-6">
+      <div>
+        <h1 className="page-title">All QR Codes</h1>
+        <p className="page-sub mt-1">{filtered.length} of {rows.length} shown.</p>
       </div>
 
-      <div className="overflow-x-auto bg-white rounded-xl border">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-left text-gray-500">
-            <tr>
-              <th className="p-3">Title</th><th className="p-3">Type</th>
-              <th className="p-3">Valid until</th><th className="p-3">Created</th>
-              <th className="p-3">Scans</th><th className="p-3">Status</th><th className="p-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading && <tr><td className="p-4 text-gray-400" colSpan={7}>Loading…</td></tr>}
-            {!loading && filtered.length === 0 && <tr><td className="p-4 text-gray-400" colSpan={7}>No QR codes.</td></tr>}
-            {filtered.map((r) => (
-              <tr key={r.id} className="border-t">
-                <td className="p-3 font-medium">{r.title}</td>
-                <td className="p-3 uppercase text-xs">{r.file_type}</td>
-                <td className="p-3">{r.valid_until}</td>
-                <td className="p-3">{r.created_at.slice(0,10)}</td>
-                <td className="p-3">{r.scan_count}</td>
-                <td className="p-3"><span className={`px-2 py-0.5 rounded-full text-xs ${badge(r.status)}`}>{r.status}</span></td>
-                <td className="p-3 flex gap-2">
-                  <button onClick={() => downloadQr(r.slug)} className="text-brand hover:underline">Download</button>
-                  {isAdmin && (
-                    <button onClick={() => toggle(r.id, !r.is_active)} className="text-gray-500 hover:underline">
-                      {r.is_active ? "Deactivate" : "Activate"}
-                    </button>
-                  )}
-                  {isAdmin && (
-                    <button onClick={() => remove(r.id, r.title)} className="text-red-600 hover:underline">Delete</button>
-                  )}
-                </td>
+      <div className="card p-4 grid sm:grid-cols-3 gap-3">
+        <div>
+          <label className="label">Name / title</label>
+          <input placeholder="Search…" value={name} onChange={(e) => setName(e.target.value)} className="input" />
+        </div>
+        <div>
+          <label className="label">Valid on</label>
+          <input type="date" value={validOn} onChange={(e) => setValidOn(e.target.value)} className="input" />
+        </div>
+        <div>
+          <label className="label">Created on</label>
+          <input type="date" value={createdOn} onChange={(e) => setCreatedOn(e.target.value)} className="input" />
+        </div>
+      </div>
+
+      <div className="card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+              <tr>
+                <th className="px-5 py-3 font-semibold">Title</th>
+                <th className="px-5 py-3 font-semibold">Type</th>
+                <th className="px-5 py-3 font-semibold">Valid until</th>
+                <th className="px-5 py-3 font-semibold">Created</th>
+                <th className="px-5 py-3 font-semibold">Scans</th>
+                <th className="px-5 py-3 font-semibold">Status</th>
+                <th className="px-5 py-3 font-semibold text-right">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {loading && <tr><td className="px-5 py-8 text-slate-400" colSpan={7}>Loading…</td></tr>}
+              {!loading && filtered.length === 0 && <tr><td className="px-5 py-8 text-slate-400" colSpan={7}>No QR codes match your filters.</td></tr>}
+              {filtered.map((r) => (
+                <tr key={r.id} className="hover:bg-slate-50/60 transition-colors">
+                  <td className="px-5 py-3.5 font-medium text-slate-900">{r.title}</td>
+                  <td className="px-5 py-3.5"><span className="badge bg-slate-100 text-slate-600 uppercase">{r.file_type}</span></td>
+                  <td className="px-5 py-3.5 text-slate-600 tabular-nums">{r.valid_until}</td>
+                  <td className="px-5 py-3.5 text-slate-600 tabular-nums">{r.created_at.slice(0,10)}</td>
+                  <td className="px-5 py-3.5 text-slate-600 tabular-nums">{r.scan_count}</td>
+                  <td className="px-5 py-3.5"><span className={`badge ${badge(r.status)}`}>{r.status}</span></td>
+                  <td className="px-5 py-3.5">
+                    <div className="flex gap-3 justify-end">
+                      <button onClick={() => downloadQr(r.slug)} className="font-medium text-brand hover:text-brand-dark">Download</button>
+                      {isAdmin && (
+                        <button onClick={() => toggle(r.id, !r.is_active)} className="font-medium text-slate-500 hover:text-slate-800">
+                          {r.is_active ? "Deactivate" : "Activate"}
+                        </button>
+                      )}
+                      {isAdmin && (
+                        <button onClick={() => remove(r.id, r.title)} className="font-medium text-red-600 hover:text-red-700">Delete</button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
