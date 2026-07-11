@@ -11,10 +11,11 @@ export async function POST(req: NextRequest) {
   const file = form.get("file") as File | null;
   const title = (form.get("title") as string)?.trim();
   const description = (form.get("description") as string) || null;
-  const validUntil = form.get("valid_until") as string; // YYYY-MM-DD
+  const validUntilRaw = form.get("valid_until") as string | null; // YYYY-MM-DD, optional
+  const validUntil = validUntilRaw?.trim() || null; // null = never expires
 
-  if (!file || !title || !validUntil)
-    return NextResponse.json({ error: "file, title and valid_until are required" }, { status: 400 });
+  if (!file || !title)
+    return NextResponse.json({ error: "file and title are required" }, { status: 400 });
 
   const mime = file.type;
   const isPdf = mime === "application/pdf";

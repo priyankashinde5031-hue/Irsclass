@@ -53,14 +53,21 @@ create table if not exists public.qr_codes (
   file_size   bigint,
   is_active   boolean     not null default true,
   valid_from  timestamptz not null default now(),
-  valid_until date        not null,
+  valid_until date,                                -- NULL = never expires (optional)
   expired_at  timestamptz,                        -- stamped by the expiry job
   scan_count  integer     not null default 0,
   created_by  uuid        not null references public.profiles(id),
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now(),
-  constraint valid_range check (valid_until >= valid_from::date)
+  constraint valid_range check (valid_until is null or valid_until >= valid_from::date)
 );
+
+-- Migration for a database created before valid_until became optional
+-- (safe/idempotent to re-run).
+alter table public.qr_codes alter column valid_until drop not null;
+alter table public.qr_codes drop constraint if exists valid_range;
+alter table public.qr_codes add constraint valid_range
+  check (valid_until is null or valid_until >= valid_from::date);
 
 create index if not exists idx_qr_created_by  on public.qr_codes(created_by);
 create index if not exists idx_qr_valid_until on public.qr_codes(valid_until);
@@ -174,9 +181,11 @@ select
   count(*) filter (where created_at::date = current_date)                 as created_today,
   count(*) filter (where created_at >= date_trunc('week',  now()))        as created_this_week,
   count(*) filter (where created_at >= date_trunc('month', now()))        as created_this_month,
-  count(*) filter (where is_active and valid_until >= current_date)       as active_count,
-  count(*) filter (where (not is_active) or valid_until < current_date)   as inactive_count,
-  count(*) filter (where valid_until < current_date)                      as expired_count,
+  count(*) filter (where is_active
+                    and (valid_until is null or valid_until >= current_date))  as active_count,
+  count(*) filter (where (not is_active)
+                    or (valid_until is not null and valid_until < current_date)) as inactive_count,
+  count(*) filter (where valid_until is not null and valid_until < current_date) as expired_count,
   count(*) filter (where is_active
                     and valid_until between current_date and current_date + 7) as expiring_7d,
   coalesce(sum(scan_count),0)                                             as total_scans

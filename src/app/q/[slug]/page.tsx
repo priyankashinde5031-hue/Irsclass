@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic"; // never cache a scan result
@@ -25,7 +26,7 @@ export default async function ViewerPage({ params }: { params: Promise<{ slug: s
   if (!qr) return <Notice variant="notfound" title="QR not found" body="This QR code doesn’t exist or has been removed." />;
 
   const today = new Date().toISOString().slice(0, 10);
-  const expired = qr.valid_until < today;
+  const expired = qr.valid_until !== null && qr.valid_until < today;
   const available = qr.is_active && !expired;
 
   await admin.rpc("register_scan", {
@@ -49,6 +50,12 @@ export default async function ViewerPage({ params }: { params: Promise<{ slug: s
   if (!signed?.signedUrl)
     return <Notice variant="error" title="Couldn’t load the document" body="Something went wrong fetching the file. Please try again shortly." />;
 
+  // PDFs: mobile browsers (notably iOS Safari) often refuse to render a PDF
+  // inline inside an <iframe> and show an "Open" placeholder instead. A
+  // top-level redirect to the signed URL sidesteps that entirely — the
+  // browser's native PDF viewer opens directly, one tap, same as an image.
+  if (qr.file_type === "pdf") redirect(signed.signedUrl);
+
   return (
     <main className="flex flex-col h-screen bg-[#faf7f2]">
       {/* Slim branded header */}
@@ -61,16 +68,12 @@ export default async function ViewerPage({ params }: { params: Promise<{ slug: s
         <span className="ml-auto text-[11px] font-semibold uppercase tracking-wide text-stone-400 hidden sm:block">IRSCLASS</span>
       </header>
 
-      {/* Document */}
-      {qr.file_type === "pdf" ? (
-        <iframe src={signed.signedUrl} title={qr.title} className="flex-1 w-full border-0" />
-      ) : (
-        <div className="flex-1 grid place-items-center p-4 overflow-auto">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={signed.signedUrl} alt={qr.title}
-            className="max-w-full max-h-full object-contain rounded-xl shadow-lift bg-white" />
-        </div>
-      )}
+      {/* Document (image) */}
+      <div className="flex-1 grid place-items-center p-4 overflow-auto">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={signed.signedUrl} alt={qr.title}
+          className="max-w-full max-h-full object-contain rounded-xl shadow-lift bg-white" />
+      </div>
     </main>
   );
 }

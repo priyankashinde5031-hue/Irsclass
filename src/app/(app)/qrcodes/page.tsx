@@ -5,7 +5,7 @@ import { qrPngDataUrl, qrFileName } from "@/lib/qr";
 
 type Row = {
   id: string; slug: string; title: string; file_type: string;
-  is_active: boolean; valid_from: string; valid_until: string;
+  is_active: boolean; valid_from: string; valid_until: string | null;
   created_at: string; scan_count: number; status: string;
 };
 
@@ -40,7 +40,7 @@ export default function QrCodesPage() {
 
   const filtered = useMemo(() => rows.filter((r) => {
     if (name && !r.title.toLowerCase().includes(name.toLowerCase())) return false;
-    if (validOn && !(r.valid_from.slice(0,10) <= validOn && validOn <= r.valid_until)) return false;
+    if (validOn && !(r.valid_from.slice(0,10) <= validOn && (r.valid_until === null || validOn <= r.valid_until))) return false;
     if (createdOn && r.created_at.slice(0,10) !== createdOn) return false;
     return true;
   }), [rows, name, validOn, createdOn]);
@@ -123,7 +123,7 @@ export default function QrCodesPage() {
                 <tr key={r.id} className="hover:bg-stone-50/60 transition-colors">
                   <td className="px-5 py-3.5 font-medium text-stone-900">{r.title}</td>
                   <td className="px-5 py-3.5"><span className="badge bg-stone-100 text-stone-600 uppercase">{r.file_type}</span></td>
-                  <td className="px-5 py-3.5 text-stone-600 tabular-nums">{r.valid_until}</td>
+                  <td className="px-5 py-3.5 text-stone-600 tabular-nums">{r.valid_until ?? <span className="text-stone-400 italic normal-case">No expiry</span>}</td>
                   <td className="px-5 py-3.5 text-stone-600 tabular-nums">{r.created_at.slice(0,10)}</td>
                   <td className="px-5 py-3.5 text-stone-600 tabular-nums">{r.scan_count}</td>
                   <td className="px-5 py-3.5"><span className={`badge ${badge(r.status)}`}>{r.status}</span></td>

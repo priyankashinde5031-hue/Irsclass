@@ -24,12 +24,13 @@ export default function GeneratePage() {
 
   async function generate() {
     setErr(null);
-    if (!file || !title || !validUntil) { setErr("File, title and validity date are required."); return; }
+    if (!file || !title) { setErr("File and title are required."); return; }
     if (file.size > MAX_BYTES) { setErr("File exceeds the 5 MB limit."); return; }
     setBusy(true);
     try {
       const fd = new FormData();
-      fd.append("file", file); fd.append("title", title); fd.append("valid_until", validUntil);
+      fd.append("file", file); fd.append("title", title);
+      if (validUntil) fd.append("valid_until", validUntil);
       if (description.trim()) fd.append("description", description.trim());
       const res = await fetch("/api/qr", { method: "POST", body: fd });
       const data = await res.json();
@@ -50,7 +51,7 @@ export default function GeneratePage() {
           </div>
           <div>
             <h1 className="page-title">QR ready</h1>
-            <p className="page-sub mt-1">“{done.title}” · valid {today} → {validUntil}</p>
+            <p className="page-sub mt-1">“{done.title}” · {validUntil ? `valid ${today} → ${validUntil}` : "no expiry"}</p>
           </div>
           <img src={done.png} alt="QR code" className="mx-auto w-60 h-60 rounded-2xl border border-stone-200 bg-white p-3 shadow-card" />
           <p className="text-xs text-stone-400 break-all">{viewerUrl(done.slug)}</p>
@@ -67,7 +68,7 @@ export default function GeneratePage() {
     <div className="max-w-lg mx-auto space-y-6">
       <div>
         <h1 className="page-title">Generate QR</h1>
-        <p className="page-sub mt-1">Upload an image or PDF, set validity, get a scannable QR.</p>
+        <p className="page-sub mt-1">Upload an image or PDF, optionally set a validity date, get a scannable QR.</p>
       </div>
 
       <div className="card p-6 space-y-5">
@@ -93,9 +94,11 @@ export default function GeneratePage() {
         </div>
 
         <div>
-          <label className="label">Valid until</label>
+          <label className="label">Valid until <span className="text-stone-400 font-normal">(optional)</span></label>
           <input type="date" min={today} value={validUntil} onChange={(e) => setValidUntil(e.target.value)} className="input" />
-          <p className="mt-1.5 text-xs text-stone-400">Active from today ({today}) until the date above.</p>
+          <p className="mt-1.5 text-xs text-stone-400">
+            {validUntil ? `Active from today (${today}) until the date above.` : "Leave blank for a QR that never expires."}
+          </p>
         </div>
 
         {err && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{err}</p>}
