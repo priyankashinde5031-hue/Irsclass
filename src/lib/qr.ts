@@ -28,3 +28,15 @@ export function qrFileName(title: string, slug: string): string {
     .slice(0, 60);
   return `${base || `qr-${slug}`}.png`;
 }
+
+// Readable download filename for the QR-stamped document, e.g. "SMC" -> "SMC QR.pdf".
+// Keeps the user's title as typed (unlike qrFileName above), just strips
+// characters that aren't safe in a filename.
+export function stampedFileName(title: string, slug: string): string {
+  const base = title
+    .replace(/[\/\\:*?"<>|]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 60);
+  return `${base || slug} QR.pdf`;
+}

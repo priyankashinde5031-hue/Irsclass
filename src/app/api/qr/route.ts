@@ -80,5 +80,5 @@ export async function POST(req: NextRequest) {
     if (stampedFilePath) await admin.storage.from("qr-files").remove([stampedFilePath]);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  return NextResponse.json({ id: data.id, slug: data.slug });
+  return NextResponse.json({ id: data.id, slug: data.slug, stampAvailable: !!stampedFilePath });
 }

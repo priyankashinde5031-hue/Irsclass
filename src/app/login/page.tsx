@@ -42,7 +42,7 @@ export default function LoginPage() {
 
           <div>
             <label className="label">Email</label>
-            <input className="input" placeholder="you@irsclass.in" autoComplete="email"
+            <input className="input" placeholder="you@example.com" autoComplete="email"
               value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div>

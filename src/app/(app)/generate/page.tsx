@@ -3,7 +3,7 @@ import { useState } from "react";
 import { qrPngDataUrl, viewerUrl, qrFileName } from "@/lib/qr";
 import { DOMAINS, DEFAULT_DOMAIN, type Domain } from "@/lib/domains";
 
-type Done = { slug: string; png: string; title: string; domain: Domain };
+type Done = { id: string; slug: string; png: string; title: string; domain: Domain; stampAvailable: boolean };
 
 export default function GeneratePage() {
   const [file, setFile] = useState<File | null>(null);
@@ -38,11 +38,18 @@ export default function GeneratePage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed");
       const png = await qrPngDataUrl(data.slug, domain);
-      setDone({ slug: data.slug, png, title, domain });
+      setDone({ id: data.id, slug: data.slug, png, title, domain, stampAvailable: !!data.stampAvailable });
     } catch (e: any) { setErr(e.message); } finally { setBusy(false); }
   }
 
   function reset() { setFile(null); setTitle(""); setDescription(""); setValidUntil(""); setDomain(DEFAULT_DOMAIN); setDone(null); setErr(null); }
+
+  async function downloadStampedFile(id: string) {
+    const res = await fetch(`/api/qr/${id}/download-stamped`);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { alert(data.error || "Couldn't download the file"); return; }
+    window.location.href = data.url;
+  }
 
   if (done) {
     return (
@@ -57,8 +64,11 @@ export default function GeneratePage() {
           </div>
           <img src={done.png} alt="QR code" className="mx-auto w-60 h-60 rounded-2xl border border-stone-200 bg-white p-3 shadow-card" />
           <p className="text-xs text-stone-400 break-all">{viewerUrl(done.slug, done.domain)}</p>
-          <div className="flex gap-3 justify-center">
+          <div className="flex gap-3 justify-center flex-wrap">
             <a href={done.png} download={qrFileName(done.title, done.slug)} className="btn-primary">Download QR</a>
+            {done.stampAvailable && (
+              <button onClick={() => downloadStampedFile(done.id)} className="btn-primary">Download file</button>
+            )}
             <button onClick={reset} className="btn-ghost">Generate more</button>
           </div>
         </div>

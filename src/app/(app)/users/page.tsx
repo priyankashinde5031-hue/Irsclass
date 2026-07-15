@@ -69,7 +69,7 @@ export default function UsersPage() {
           <h2 className="font-semibold text-stone-900">Add a user</h2>
           <div>
             <label className="label">Email</label>
-            <input placeholder="name@irsclass.in" value={email} onChange={(e)=>setEmail(e.target.value)} className="input" />
+            <input placeholder="name@example.com" value={email} onChange={(e)=>setEmail(e.target.value)} className="input" />
           </div>
           <div>
             <label className="label">Full name</label>
