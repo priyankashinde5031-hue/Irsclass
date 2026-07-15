@@ -19,7 +19,7 @@ export default async function ViewerPage({ params }: { params: Promise<{ slug: s
 
   const { data: qr } = await admin
     .from("qr_codes")
-    .select("id,file_path,file_type,mime_type,is_active,valid_until,title,description")
+    .select("id,file_path,file_name,stamped_file_path,file_type,mime_type,is_active,valid_until,title,description")
     .eq("slug", slug)
     .single();
 
@@ -43,9 +43,12 @@ export default async function ViewerPage({ params }: { params: Promise<{ slug: s
   }
 
   const ttl = Number(process.env.SIGNED_URL_TTL || 3600);
+  // PDFs serve the QR-stamped copy when available; falls back to the
+  // original if stamping failed or hasn't run for this row.
+  const storagePath = qr.file_type === "pdf" && qr.stamped_file_path ? qr.stamped_file_path : qr.file_path;
   const { data: signed } = await admin.storage
     .from("qr-files")
-    .createSignedUrl(qr.file_path, ttl);
+    .createSignedUrl(storagePath, ttl);
 
   if (!signed?.signedUrl)
     return <Notice variant="error" title="Couldn’t load the document" body="Something went wrong fetching the file. Please try again shortly." />;
@@ -56,6 +59,12 @@ export default async function ViewerPage({ params }: { params: Promise<{ slug: s
   // browser's native PDF viewer opens directly, one tap, same as an image.
   if (qr.file_type === "pdf") redirect(signed.signedUrl);
 
+  // Images only: a second, download-disposition signed URL for the button
+  // below. The inline <img> above keeps using the plain view URL.
+  const { data: downloadSigned } = await admin.storage
+    .from("qr-files")
+    .createSignedUrl(storagePath, ttl, { download: qr.file_name });
+
   return (
     <main className="flex flex-col h-screen bg-[#faf7f2]">
       {/* Slim branded header */}
@@ -65,7 +74,12 @@ export default async function ViewerPage({ params }: { params: Promise<{ slug: s
           <p className="text-sm font-semibold text-stone-900 truncate">{qr.title}</p>
           {qr.description && <p className="text-xs text-stone-500 truncate">{qr.description}</p>}
         </div>
-        <span className="ml-auto text-[11px] font-semibold uppercase tracking-wide text-stone-400 hidden sm:block">IRSCLASS</span>
+        <div className="ml-auto flex items-center gap-3 shrink-0">
+          {downloadSigned?.signedUrl && (
+            <a href={downloadSigned.signedUrl} className="btn-primary !py-2 !px-4 text-xs">Download</a>
+          )}
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-stone-400 hidden sm:block">IRSCLASS</span>
+        </div>
       </header>
 
       {/* Document (image) */}

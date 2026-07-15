@@ -1,14 +1,16 @@
 "use client";
 import { useState } from "react";
 import { qrPngDataUrl, viewerUrl, qrFileName } from "@/lib/qr";
+import { DOMAINS, DEFAULT_DOMAIN, type Domain } from "@/lib/domains";
 
-type Done = { slug: string; png: string; title: string };
+type Done = { slug: string; png: string; title: string; domain: Domain };
 
 export default function GeneratePage() {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [validUntil, setValidUntil] = useState("");
+  const [domain, setDomain] = useState<Domain>(DEFAULT_DOMAIN);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [done, setDone] = useState<Done | null>(null);
@@ -29,18 +31,18 @@ export default function GeneratePage() {
     setBusy(true);
     try {
       const fd = new FormData();
-      fd.append("file", file); fd.append("title", title);
+      fd.append("file", file); fd.append("title", title); fd.append("domain", domain);
       if (validUntil) fd.append("valid_until", validUntil);
       if (description.trim()) fd.append("description", description.trim());
       const res = await fetch("/api/qr", { method: "POST", body: fd });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed");
-      const png = await qrPngDataUrl(data.slug);
-      setDone({ slug: data.slug, png, title });
+      const png = await qrPngDataUrl(data.slug, domain);
+      setDone({ slug: data.slug, png, title, domain });
     } catch (e: any) { setErr(e.message); } finally { setBusy(false); }
   }
 
-  function reset() { setFile(null); setTitle(""); setDescription(""); setValidUntil(""); setDone(null); setErr(null); }
+  function reset() { setFile(null); setTitle(""); setDescription(""); setValidUntil(""); setDomain(DEFAULT_DOMAIN); setDone(null); setErr(null); }
 
   if (done) {
     return (
@@ -54,7 +56,7 @@ export default function GeneratePage() {
             <p className="page-sub mt-1">“{done.title}” · {validUntil ? `valid ${today} → ${validUntil}` : "no expiry"}</p>
           </div>
           <img src={done.png} alt="QR code" className="mx-auto w-60 h-60 rounded-2xl border border-stone-200 bg-white p-3 shadow-card" />
-          <p className="text-xs text-stone-400 break-all">{viewerUrl(done.slug)}</p>
+          <p className="text-xs text-stone-400 break-all">{viewerUrl(done.slug, done.domain)}</p>
           <div className="flex gap-3 justify-center">
             <a href={done.png} download={qrFileName(done.title, done.slug)} className="btn-primary">Download QR</a>
             <button onClick={reset} className="btn-ghost">Generate more</button>
@@ -91,6 +93,16 @@ export default function GeneratePage() {
           <label className="label">Description <span className="text-stone-400 font-normal">(optional)</span></label>
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="input" rows={2}
             placeholder="What is this document about?" />
+        </div>
+
+        <div>
+          <label className="label">Domain</label>
+          <select value={domain} onChange={(e) => setDomain(e.target.value as Domain)} className="input">
+            {DOMAINS.map((d) => (
+              <option key={d} value={d}>{d}{d === DEFAULT_DOMAIN ? " (primary)" : ""}</option>
+            ))}
+          </select>
+          <p className="mt-1.5 text-xs text-stone-400">Which domain this QR opens on when scanned.</p>
         </div>
 
         <div>

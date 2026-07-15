@@ -7,6 +7,7 @@ type Row = {
   id: string; slug: string; title: string; file_type: string;
   is_active: boolean; valid_from: string; valid_until: string | null;
   created_at: string; scan_count: number; status: string;
+  domain: string; stamp_error: string | null;
 };
 
 export default function QrCodesPage() {
@@ -23,7 +24,7 @@ export default function QrCodesPage() {
     setLoading(true);
     const supabase = createClient();
     const { data } = await supabase.from("qr_codes_status")
-      .select("id,slug,title,file_type,is_active,valid_from,valid_until,created_at,scan_count,status")
+      .select("id,slug,title,file_type,is_active,valid_from,valid_until,created_at,scan_count,status,domain,stamp_error")
       .order("created_at", { ascending: false });
     setRows((data as Row[]) || []); setLoading(false);
   }
@@ -52,8 +53,8 @@ export default function QrCodesPage() {
   const current = Math.min(page, pageCount);
   const paged = filtered.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
 
-  async function downloadQr(slug: string, title: string) {
-    const png = await qrPngDataUrl(slug);
+  async function downloadQr(slug: string, title: string, domain: string) {
+    const png = await qrPngDataUrl(slug, domain);
     const a = document.createElement("a");
     a.href = png; a.download = qrFileName(title, slug); a.click();
   }
@@ -122,14 +123,21 @@ export default function QrCodesPage() {
               {paged.map((r) => (
                 <tr key={r.id} className="hover:bg-stone-50/60 transition-colors">
                   <td className="px-5 py-3.5 font-medium text-stone-900">{r.title}</td>
-                  <td className="px-5 py-3.5"><span className="badge bg-stone-100 text-stone-600 uppercase">{r.file_type}</span></td>
+                  <td className="px-5 py-3.5">
+                    <span className="badge bg-stone-100 text-stone-600 uppercase">{r.file_type}</span>
+                    {r.file_type === "pdf" && r.stamp_error && (
+                      <span title={r.stamp_error} className="badge ml-1.5 bg-amber-50 text-amber-700 ring-1 ring-amber-200">
+                        ⚠ stamp failed
+                      </span>
+                    )}
+                  </td>
                   <td className="px-5 py-3.5 text-stone-600 tabular-nums">{r.valid_until ?? <span className="text-stone-400 italic normal-case">No expiry</span>}</td>
                   <td className="px-5 py-3.5 text-stone-600 tabular-nums">{r.created_at.slice(0,10)}</td>
                   <td className="px-5 py-3.5 text-stone-600 tabular-nums">{r.scan_count}</td>
                   <td className="px-5 py-3.5"><span className={`badge ${badge(r.status)}`}>{r.status}</span></td>
                   <td className="px-5 py-3.5">
                     <div className="flex gap-3 justify-end">
-                      <button onClick={() => downloadQr(r.slug, r.title)} className="font-medium text-brand hover:text-brand-dark">Download</button>
+                      <button onClick={() => downloadQr(r.slug, r.title, r.domain)} className="font-medium text-brand hover:text-brand-dark">Download</button>
                       {isAdmin && (
                         <button onClick={() => toggle(r.id, !r.is_active)} className="font-medium text-stone-500 hover:text-stone-800">
                           {r.is_active ? "Deactivate" : "Activate"}
