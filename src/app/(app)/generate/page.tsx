@@ -16,18 +16,18 @@ export default function GeneratePage() {
   const [done, setDone] = useState<Done | null>(null);
 
   const today = new Date().toISOString().slice(0, 10);
-  const MAX_BYTES = 5 * 1024 * 1024; // 5 MB cap
+  const MAX_BYTES = 4 * 1024 * 1024; // 4 MB cap — Vercel's serverless function body limit is ~4.5 MB
 
   function pickFile(f: File | null) {
     setErr(null);
-    if (f && f.size > MAX_BYTES) { setErr("File exceeds the 5 MB limit."); setFile(null); return; }
+    if (f && f.size > MAX_BYTES) { setErr("File exceeds the 4 MB limit."); setFile(null); return; }
     setFile(f);
   }
 
   async function generate() {
     setErr(null);
     if (!file || !title) { setErr("File and title are required."); return; }
-    if (file.size > MAX_BYTES) { setErr("File exceeds the 5 MB limit."); return; }
+    if (file.size > MAX_BYTES) { setErr("File exceeds the 4 MB limit."); return; }
     setBusy(true);
     try {
       const fd = new FormData();
@@ -85,7 +85,7 @@ export default function GeneratePage() {
 
       <div className="card p-6 space-y-5">
         <div>
-          <label className="label">Document <span className="text-stone-400 font-normal">(image or PDF, max 5 MB)</span></label>
+          <label className="label">Document <span className="text-stone-400 font-normal">(image or PDF, max 4 MB)</span></label>
           <input type="file" accept="image/*,application/pdf"
             onChange={(e) => pickFile(e.target.files?.[0] || null)}
             className="block w-full text-sm text-stone-600 rounded-xl border border-stone-200 bg-white

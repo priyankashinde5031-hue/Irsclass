@@ -24,7 +24,7 @@ skeleton form; the plan is how to harden and finish it.
 
 ## M2 — Generate QR ✅ (scaffolded)
 - [x] Upload → `/api/qr` → storage + row → QR render → download → "Generate more".
-- [x] File-size (5 MB) + type validation, nicer errors. (upload progress: later)
+- [x] File-size (4 MB, under Vercel's ~4.5 MB function body limit) + type validation, nicer errors. (upload progress: later)
 - **Done when:** generating a QR, scanning it on a phone shows the document.
 
 ## M3 — Public viewer ✅ (scaffolded)

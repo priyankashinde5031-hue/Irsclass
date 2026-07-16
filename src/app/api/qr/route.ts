@@ -31,9 +31,9 @@ export async function POST(req: NextRequest) {
   if (!isPdf && !isImg)
     return NextResponse.json({ error: "Only images and PDFs are allowed" }, { status: 400 });
 
-  const MAX_BYTES = 5 * 1024 * 1024; // 5 MB cap
+  const MAX_BYTES = 4 * 1024 * 1024; // 4 MB cap — Vercel's serverless function body limit is ~4.5 MB
   if (file.size > MAX_BYTES)
-    return NextResponse.json({ error: "File exceeds the 5 MB limit" }, { status: 400 });
+    return NextResponse.json({ error: "File exceeds the 4 MB limit" }, { status: 400 });
 
   const admin = createAdminClient();
   const slug = nanoid(12);

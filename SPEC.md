@@ -128,8 +128,10 @@ GET    /api/cron/expire        daily expiry stamp (Bearer CRON_SECRET)
 `CRON_SECRET`.
 
 ## 7. Decisions (resolved)
-- **File size cap** — **5 MB**, enforced in `/api/qr` (server) and the Generate
-  form (client).
+- **File size cap** — **4 MB**, enforced in `/api/qr` (server) and the Generate
+  form (client). Kept under Vercel's ~4.5 MB serverless function body limit —
+  a 5 MB app-level cap let files through that Vercel itself then rejected
+  with a raw `FUNCTION_PAYLOAD_TOO_LARGE` error.
 - **Editable file** — **no replace-file action.** A QR's document is fixed at
   creation. (Still in the backlog if it's ever needed.)
 - **Deactivate / delete rights** — **admin only.** Managers can generate,
