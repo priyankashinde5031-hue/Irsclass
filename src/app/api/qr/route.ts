@@ -55,7 +55,10 @@ export async function POST(req: NextRequest) {
       const qrPngBytes = await QRCode.toBuffer(viewerUrl(slug, domain), {
         width: 512, margin: 2, errorCorrectionLevel: "M",
       });
-      const stamped = await stampPdfWithQr(bytes, qrPngBytes);
+      // ccsclass.org stamps the QR in the bottom-RIGHT corner; the other
+      // two domains keep the bottom-left placement unchanged.
+      const corner = domain === "ccsclass.org" ? "right" : "left";
+      const stamped = await stampPdfWithQr(bytes, qrPngBytes, corner);
       const stampedPath = `${slug}/stamped.pdf`;
       const stampUp = await admin.storage.from("qr-files")
         .upload(stampedPath, stamped, { contentType: "application/pdf" });
