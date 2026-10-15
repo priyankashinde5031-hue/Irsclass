@@ -5,8 +5,11 @@ import { PDFDocument } from "pdf-lib";
 // direct; horizontal placement flips based on the requested corner.
 const MARGIN = 24; // pt from each edge
 const SIZE = 64;   // pt square
+// "left-raised" lifts the QR off the bottom edge to roughly the lower third of
+// the page (matches a signature-block placement) instead of sitting at MARGIN.
+const RAISED_FRACTION = 0.3; // QR bottom at 30% of page height
 
-export type StampCorner = "left" | "right";
+export type StampCorner = "left" | "right" | "left-raised";
 
 export async function stampPdfWithQr(
   pdfBytes: Buffer,
@@ -17,7 +20,10 @@ export async function stampPdfWithQr(
   const qrImage = await pdfDoc.embedPng(qrPngBytes);
   for (const page of pdfDoc.getPages()) {
     const x = corner === "right" ? page.getWidth() - MARGIN - SIZE : MARGIN;
-    page.drawImage(qrImage, { x, y: MARGIN, width: SIZE, height: SIZE });
+    const y = corner === "left-raised"
+      ? page.getHeight() * RAISED_FRACTION
+      : MARGIN;
+    page.drawImage(qrImage, { x, y, width: SIZE, height: SIZE });
   }
   const stamped = await pdfDoc.save();
   return Buffer.from(stamped);
