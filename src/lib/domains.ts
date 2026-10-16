@@ -16,11 +16,6 @@ export const DOMAINS: string[] = EXTRA_DOMAIN
 export type Domain = string;
 export const DEFAULT_DOMAIN: Domain = "irclasss.com";
 
-// The optional 4th domain stamps its QR on the lower-LEFT, lifted up off the
-// very bottom edge (see StampCorner "left-raised"); set via env so this file
-// never hardcodes it.
-export const RAISED_DOMAIN: Domain = EXTRA_DOMAIN;
-
 export function isDomain(value: unknown): value is Domain {
   return typeof value === "string" && DOMAINS.includes(value);
 }

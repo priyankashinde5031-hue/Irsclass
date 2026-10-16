@@ -3,7 +3,7 @@ import { nanoid } from "nanoid";
 import QRCode from "qrcode";
 import { getProfile } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { DEFAULT_DOMAIN, RAISED_DOMAIN, isDomain } from "@/lib/domains";
+import { DEFAULT_DOMAIN, isDomain } from "@/lib/domains";
 import { viewerUrl } from "@/lib/qr";
 import { stampPdfWithQr } from "@/lib/stampPdf";
 
@@ -55,13 +55,9 @@ export async function POST(req: NextRequest) {
       const qrPngBytes = await QRCode.toBuffer(viewerUrl(slug, domain), {
         width: 512, margin: 2, errorCorrectionLevel: "M",
       });
-      // ccsclass.org stamps the QR in the bottom-RIGHT corner; the optional
-      // 4th (env-configured) domain stamps on the LEFT but lifted off the
-      // bottom edge; all other domains keep the plain bottom-left placement.
-      const corner =
-        domain === "ccsclass.org" ? "right"
-        : RAISED_DOMAIN && domain === RAISED_DOMAIN ? "left-raised"
-        : "left";
+      // ccsclass.org stamps the QR in the bottom-RIGHT corner; every other
+      // domain (including the optional 4th) uses the bottom-left corner.
+      const corner = domain === "ccsclass.org" ? "right" : "left";
       const stamped = await stampPdfWithQr(bytes, qrPngBytes, corner);
       const stampedPath = `${slug}/stamped.pdf`;
       const stampUp = await admin.storage.from("qr-files")
